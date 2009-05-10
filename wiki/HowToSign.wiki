@@ -1,0 +1,9 @@
+#summary How To Sign Enzyme API.
+
+= Introduction =
+Enzyme API is web based API set to utilize different types of documents. It requires signing for every HTTP request. In order to get signed request to Enzyme API, you first need to register your API at the Enzyme API Center, which helps using and managing Enzyme API for developers. If you've done register your API at the Center, you're ready to use Enzyme API.
+
+= Signing Enzyme API =
+You can see the API Key and the Signature Key at the API Info page. Two Key values are most important thing in signing. API Key is used to identifying API request in public. It is always exposed in your final request URL. On the contrary, Signature Key is used to Identifying API request in private. It is never exposed in public, nor should be. If your Signature Key is exposed to anonymous, it means your API identity was stolen. So keep it undisclosed in safe place.
+
+We provide libraries for helping signing API by language. Currently, there are two language support: java, php. You can find one which you prefer on our source repository.
