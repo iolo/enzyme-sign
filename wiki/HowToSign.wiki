@@ -6,4 +6,16 @@ Enzyme API is web based API set to utilize different types of documents. It requ
 = Signing Enzyme API =
 You can see the API Key and the Signature Key at the API Info page. Two trailing key values are most important thing in signing stage. API Key is used to identifying API request in public. It is always exposed in your final request URL. On the contrary, Signature Key is used to Identifying API request in private. It is never exposed in public, nor should be. If your Signature Key was exposed to anonymous, it means your API identity was stolen. So keep it undisclosed in safe place.
 
-We provide libraries for helping signing API request by language. Currently, there are two language support: java, php. You can find one which you prefer on our source repository.
+We provide libraries, called enzyme-sign, for helping signing API request by language. Currently, there are two language support: java, php. You can find one which you prefer on our source repository.
+
+= Request Parameter =
+Request for Enzyme API is represented as form of URI, so it consists of Path and Parameter(Name/Value Pair) set in QueryString section. Parameters related with signing is:
+
+  * apikey: API Key
+  * ts: Timestamp
+  * nonce: Random bits
+  * sigalg: Algorithm used in signing
+  * sig: Signature
+
+= Signing API Request Using enzyme-sign Library =
+enzyme-sign library provides a way of gererating properly signed request.
