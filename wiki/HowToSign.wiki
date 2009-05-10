@@ -9,13 +9,13 @@ You can see the API Key and the Signature Key at the API Info page. Two trailing
 We provide libraries, called enzyme-sign, for helping signing API request by language. Currently, there are two language support: java, php. You can find one which you prefer on our source repository.
 
 = Request Parameter =
-Request for Enzyme API is represented as form of URI, so it consists of Path and Parameter(Name/Value Pair) set in QueryString section. Parameters related with signing is:
+Request for Enzyme API is represented as a form of URI. So you can say that it consists of Host, Path and Parameter(Name/Value Pair) set. Host and Path are static value you can easily set: http://member.thinkfree.com and /enzyme/api/. Parameters related with signing stage are:
 
   * apikey: API Key
-  * ts: Timestamp
-  * nonce: Random bits
-  * sigalg: Algorithm used in signing
-  * sig: Signature
+  * ts: Current UTC timestamp with timezone. e.g. 2009123112595900
+  * nonce: Just random bits.
+  * sigalg: Algorithm used in signing. For now 'hmacsha1'.
+  * sig: Signature. Varies in every request.
 
 = Signing API Request Using enzyme-sign Library =
-enzyme-sign library provides a way of gererating properly signed request.
+enzyme-sign library provides a way of generating properly signed request. As a result to calling, you will get partial string to be used in requesting. If you append this string to Host and Path, and assemble with other parameters related with document to utilize, then you're ready to send that request to Enzyme immediately. Check Enzyme API Reference page for putting into other parameters.
