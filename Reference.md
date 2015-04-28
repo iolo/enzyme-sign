@@ -1,0 +1,154 @@
+# Common Terms and Definitions #
+
+## Parameters ##
+
+| **Name**     | **Meaning**                           | **Example Value**           |
+|:-------------|:--------------------------------------|:----------------------------|
+| apid       | `apikey`에 대한 별칭 (optional)     | com.thinkfree.s1.myoffice |
+| apikey     | API 사용을 위해 등록한 키           | fedcba0987654321          |
+| ts         | 매 요청에 대한 타임스탬프           | 20090125120059            |
+| nonce      | 매 요청에 대한 임의 난수            | babeface                  |
+| sigalg     | 서명 알고리듬                       | hmacsha1                  |
+| sig        | 발급된 비밀키로 요청에 서명한 값    | 1234567890abcdef          |
+| repotype   | 리포지터리 형식                     | s1, docs                  |
+| repokey    | 해당 리포의 파일 식별을 위한 고유값 | /nas/path/file.ext        |
+| checksum   | 파일 변경 여부를 확인하기 위한 값   | any unique value          |
+| doctype    | 해당 파일의 문서 형식               | doc, ppt                  |
+| callback   | 요청 결과를 처리할 사용자 함수명    | js\_handler                |
+| locale     | 에러 메시지에 대한 언어 지정        | ko 또는 en                |
+
+## Response ##
+
+| **Status** | **Meaning**                |
+|:-----------|:---------------------------|
+| 200      | OK                       |
+| 401      | Unauthorized             |
+| 440      | Wrong API Key            |
+| 441      | Wrong Signature          |
+| 442      | Cannot Parse Date Format |
+
+## 주의 사항 ##
+
+  * `apikey`, `ts`, `nonce`는 반드시 모든 요청 URL의 쿼리스트링 부분의 첫 패러미터로, 언급된 순서대로 나타나야 함.
+  * `repotype`과 `repokey`는 API 요청할 파일의 식별자로 사용되므로 UNIQUE 해야 함. checksum은 변경 여부만을 판단하기 위한 것임.
+  * `callback`이 없으면 일반 JSON 객체로 리턴, 있으면 JSON 객체를 매개변수로 콜백 함수를 실행.
+  * `checksum`의 형식은 자유. 정의되지 않거나 빈 문자열일 경우 캐시를 무시하고 항상 변환하라는 요청으로 간주함.
+  * [wiki:HowToSignEnzymeAPI EnzymeAPI 서명 방법] 참조.
+
+## 지원 문서 형식 ##
+
+  * 입력 형식: doc, xsl, ppt, hwp, pdf, docz
+  * 출력 형식: unipaper, html, pdf, text, image
+
+
+# View #
+
+컨슈머 측에서 가장 많이 사용하게 될 API. 캐시 처리 및 변환 작업 수행 여부는 패러미터 정보에 기초하여 Enzyme이 판단하여 처리함.
+
+  * GET /enzyme/api/view
+  * Parameters:
+
+| **Name** | **Meaning**           | **Example Value**  |
+|:---------|:----------------------|:-------------------|
+| output | 출력 형식           | unipaper, html   |
+| width  | `<object>`의 width  | 555              |
+| height | `<object>`의 height | 451              |
+| range  | 변환할 페이지 범위  | 1 또는 1-10      |
+
+  * Response:
+
+```
+{"response":{"result":"<div><object>...</object></div>"}}
+```
+
+
+# Embed #
+
+Viewer와 같음. 결과 html에 `<div>` 블럭이 빠진 것.
+
+# Convert #
+
+대량 문서 변환 요청 등과 같은 명시적 요청을 (주로 비동기로) 처리. 컨버전 서버로 바이패스함.
+  * GET /enzyme/api/convert
+  * Parameters:
+
+| **Name** | **Meaning**           | **Value**           |
+|:---------|:----------------------|:--------------------|
+| output | 변환 결과 문서 형식 |                   |
+| async  | 비동기 수행 여부    | 'true' or 'false' |
+
+  * Response:
+
+| **Name** | **Meaning**                                                             |
+|:---------|:------------------------------------------------------------------------|
+| result | 변환 결과 문서의 주소. 다운로드에 사용할 수 있음.                     |
+| status | 변환 요청에 대한 상태 코드. 0: 진행 중, 1: 완료(성공), -1: 완료(실패) |
+
+```
+{"response":{"result":"http://.../enzyme/resource/conversion/.../path.doc","status":1}}
+```
+
+  * 주의사항
+> > - 비동기 요청시 결과값을 보장 못함. 결과를 무시할 것.
+> > - output 형식이 image나 text인 경우, imgtype, width, height 등 image/text 요청에 필요한 것과 동일한 패러미터를 사용.
+
+# Image #
+  * GET /enzyme/api/image
+  * Parameters:
+
+| **Name**  | **Meaning**        | **Value**        |
+|:----------|:-------------------|:-----------------|
+| imgtype | 변환 이미지 형식 | 'jpg' or 'png' |
+| width   | 이미지의 너비    |                |
+| height  | 이미지의 높이    |                |
+
+  * Response:
+
+| **Name** | **Meaning**                                                      |
+|:---------|:-----------------------------------------------------------------|
+| result | 썸네일 주소. 썸네일의 이미지 형식에 맞는 헤더를 넣어서 보내줌. |
+
+```
+{"response":{"result":"http://..../image.png"}}
+```
+
+# Text #
+  * GET /enzyme/api/text
+  * Parameters:
+  * Response:
+
+| **Name** | **Meaning**                                                               |
+|:---------|:--------------------------------------------------------------------------|
+| result | 입력 문서로부터 추출한 텍스트 (언어에 상관없이 기본 1000자 요약 텍스트) |
+
+```
+{"response":{"result":"...."}}
+```
+
+# Invalidate #
+
+문서의 변환 결과를 지움. 시간을 명시할 경우 해당일에 만료 시킴.
+  * GET /enzyme/api/invalidate
+  * Parameters:
+
+| **Name**  | **Meaning**                                                        | **Example Value** |
+|:----------|:-------------------------------------------------------------------|:------------------|
+| date    | 만료일자 ([ISO-8601](http://ko.wikipedia.org/wiki/ISO_8601) 형식) | 2009-01-28T14:46:31+09:00 |
+
+  * Response: 결과 내용(http body)은 없음. 상태 코드만으로 판단할 것.
+
+
+# Handling Errors #
+
+문서를 변환하는 과정에서 에러가 발생한 경우, 아래와 같은 형태의 JSON 객체가 리턴됨.
+
+  * Response:
+
+| **Name**      | **Meaning**                             |
+|:--------------|:----------------------------------------|
+| code        |                                       |
+| description | 에러에 대한 (다국어 처리된) 상세 정보 |
+
+```
+{"response":{"code":12345,"description":"...."}}
+```
